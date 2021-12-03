@@ -2,8 +2,9 @@ clear; clc;
 
 %OG Graph
 load('NSR100m (0).mat');
+t=0:10/(numel(val)-1):10;
 subplot(4,1,1);
-plot(val);
+plot(t, val);
 title('ECG Unfiltered');
 xlabel('Time(s)');
 ylabel('mV');
@@ -25,5 +26,5 @@ for ii=1:1:3600
     val3(ii) = y;
 end
 subplot(4,1,2);
-plot(val3);
+plot(t, val3);
 title('ECG Filtered (Moving Average Filter)');
