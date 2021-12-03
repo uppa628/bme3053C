@@ -1,0 +1,47 @@
+clear;
+% Load all the files
+myFolder = 'FOLDER LOCATION';               %Change based on where the data is stored on your computer
+filePattern = fullfile(myFolder, '*.mat');
+matFiles = dir(filePattern);
+for i = 1:length(matFiles)
+    baseFileName=fullfile(myFolder, matFiles(i).name);
+    ref_files{i}=load(baseFileName);
+end
+
+%%% The outer for loop was mostly used to compute any similarities among the ECGs of the same condition. 
+%%% Parts of this can then be used for detection of random ECGs as well.
+
+%Find Peaks
+k=1;
+for i=1:length(ref_files) 
+val = ref_files{1,i}.val;
+[xpks,xlocs]=findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050); %May need to find a better way for detecting a threshold for peak heigh
+findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050);
+Bx=rmoutliers(xpks,'mean');
+[Bx,TFx]=rmoutliers(xpks);
+if length(xpks)<5    %Due to the ECGs being different I had the code factor out ECGs that didn't fit the threshold
+    continue;
+end
+
+%Lining up Peaks
+clear xpeaks;
+xpeaks(:,1)=xlocs;      %location of all peaks
+xpeaks(:,2)=xpks;       %value of all peaks
+xpeaks(:,3)=TFx;        %Determines inlier(0) & outliers(1)
+xpeaks(xpeaks(:,3)==1,:)=[];        %removal of outliers(1) from all columns
+
+%Find Distance between peaks
+for j=1:(length(xpeaks)-1)
+    dist(j)=(xpeaks(j+1,1)-xpeaks(j,1));
+end
+
+% Find standard deviation of the distances (Wouldn't need the k loop when testing only one ECG at a time)
+% Finding the Std lets us see if the peaks are irregularly spaced out or not
+StdDev(k)= std(avg);
+k=k+1;
+end
+
+%% I was thinking of only checking for a few conditions (preferably the easier ones like AFL, AFIB, SVTA) as we should have more than enough code 
+%% The std only checks for irregularity of the QRS peak so we would need to look at the distance of the 
+peak themselves to check for atrial flutter, or the number of atrial contractions in relation to the number of QRS peaks
+if the distance between peaks are spaced out evenly. 
