@@ -37,7 +37,7 @@ end
 
 % Find standard deviation of the distances (Wouldn't need the k loop when testing only one ECG at a time)
 % Finding the Std lets us see if the peaks are irregularly spaced out or not
-StdDev(k)= std(avg);
+StdDev(k)= std(dist);
 k=k+1;
 end
 
