@@ -51,9 +51,7 @@ for i = 1:length(size(ref_files))
     findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050);
     Bx=rmoutliers(xpks,'mean');
     [Bx,TFx]=rmoutliers(xpks);
-    if length(xpks)<5   
-        continue;
-    end
+    
     clear xpeaks;
     xpeaks(:,1)=xlocs;      %location of all peaks
     xpeaks(:,2)=xpks;       %value of all peaks
