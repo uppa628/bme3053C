@@ -46,7 +46,6 @@ xlabel('Time(s)');
 ylabel('Potential(uV)');
 
 %Find Peaks, Outliers, & Distance btw Peaks
-k = 1;
 for i = 1:length(size(ref_files))
     [xpks,xlocs]=findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050);
     findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050);
@@ -64,7 +63,6 @@ for i = 1:length(size(ref_files))
     for j=1:(length(xpeaks)-1)
         dist(j)=(xpeaks(j+1,1)-xpeaks(j,1));
     end
-    k=k+1;
 end
 title('ECG Filtered (Moving Average Filter) & Peaks');
 ylabel('Potential(uV)');
