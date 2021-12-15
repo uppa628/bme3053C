@@ -1,0 +1,72 @@
+clear; clc;
+
+%Save and index ECG files in 'ref_files'
+myFolder = 'BME 3053C Project';                     %only works if you store ECG files in folder 'BME 3053C Project'
+filePattern = fullfile(myFolder, '*.mat');
+matFiles = dir(filePattern);
+for i = 1:length(matFiles)
+    baseFileName=fullfile(myFolder, matFiles(i).name);
+    ref_files{i}=load(baseFileName);
+end
+
+%Prompt user for file number
+filenum = input('Please enter a valid file number (integer between 1-25): ');
+while filenum >25 || filenum<1 
+    fprintf('Invalid file number accessed');
+    filenum = input('Please enter a valid file number (integer between 1-25): ');
+end
+
+%Denoising ECG
+%%OG Graph
+og = ref_files{1, filenum}.val;
+t=0:25/(numel(og)-1):25;
+plot(t, og);
+title('ECG Unfiltered');
+xlabel('Time(s)');
+ylabel('Potential(uV)');
+% Moving Average Filter Graph
+val = zeros(1,3600);
+for ii=1:1:3600
+    if ii>3 && ii<3598
+        y = (og(ii)+og(ii+1)+og(ii+2)+og(ii+3)+og(ii-3)+og(ii-2)+og(ii-1))/7;
+    elseif ii==3 || ii == 3598
+         y = (og(ii)+og(ii+1)+og(ii+2)+og(ii-2)+og(ii-1))/5;
+    elseif ii == 2 || ii == 3599
+         y = (og(ii)+og(ii+1)+og(ii-1))/3;
+    elseif ii==1
+        y = (og(ii)+og(ii+1))/2;
+    elseif ii==3600
+        y = (og(ii)+og(ii-1))/2;
+    end
+    val(ii) = y;
+end
+plot(t, val);
+title('ECG Filtered (Moving Average Filter)');
+xlabel('Time(s)');
+ylabel('Potential(uV)');
+
+%Find Peaks, Outliers, & Distance btw Peaks
+for i = 1:length(size(ref_files))
+    [xpks,xlocs]=findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050);
+    findpeaks(val,'MinPeakDistance',20,'MinPeakHeight',1050);
+    Bx=rmoutliers(xpks,'mean');
+    [Bx,TFx]=rmoutliers(xpks);
+    
+    clear xpeaks;
+    xpeaks(:,1)=xlocs;      %location of all peaks
+    xpeaks(:,2)=xpks;       %value of all peaks
+    xpeaks(:,3)=TFx;        %Determines inlier(0) & outliers(1)
+    xpeaks(xpeaks(:,3)==1,:)=[];        %removal of outliers(1) from all columns
+    %Find Distance between peaks
+    for j=1:(length(xpeaks)-1)
+        dist(j)=(xpeaks(j+1,1)-xpeaks(j,1));
+    end
+end
+title('ECG Filtered (Moving Average Filter) & Peaks');
+ylabel('Potential(uV)');
+xlabel('Time(s)');
+
+%Interpretation
+averagepeak = sum(xpks, 'all')/numel(xpks);
+averagepeak = num2str(averagepeak);
+fprintf('Average R peak: %s uV', averagepeak);
